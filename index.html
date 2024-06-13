@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <!--=============== BOXICONS ===============-->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+
+        <!--=============== CSS ===============-->
+        <link rel="stylesheet" href="assets/css/styles.css">
+
+        <title>Responsive bottom navigation</title>
+    </head>
+    <body>
+        <!--=============== HEADER ===============-->
+        <header class="header" id="header">
+            <nav class="nav container">
+                <a href="#" class="nav__logo">tweet</a>
+
+                <div class="nav__menu" id="nav-menu">
+                    <ul class="nav__list">
+                        <li class="nav__item">
+                            <a href="#home" class="nav__link active-link">
+                                <i class='bx bx-home-alt nav__icon'></i>
+                                <span class="nav__name">Home</span>
+                            </a>
+                        </li>
+                        
+                        <li class="nav__item">
+                            <a href="Profile.html" class="nav__link">
+    <img width="24" height="24" src="https://img.icons8.com/android/24/1A1A1A/user.png" alt="user"/>
+
+                                <span class="nav__name">Profile</span>
+                            </a>
+                        </li>
+
+                        <li class="nav__item">
+                            <a href="post.html" class="nav__link">
+<img width="24" height="24" src="https://img.icons8.com/android/24/1A1A1A/ball-point-pen.png" alt="ball-point-pen"/>
+                                <span class="nav__name">Post</span>
+                            </a>
+                        </li>
+
+                        <li class="nav__item">
+                            <a href="Users.html" class="nav__link">
+ <img width="26" height="26" src="https://img.icons8.com/metro/26/1A1A1A/user-group-man-man.png" alt="user-group-man-man"/>
+                                <span class="nav__name">Users</span>
+                            </a>
+                        </li>
+
+                        <li class="nav__item">
+                            <a href="#" class="nav__link">
+  <img width="24" height="24" src="https://img.icons8.com/android/24/1A1A1A/menu.png" alt="menu"/>
+                                <span class="nav__name">More</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+<a href="More.html">
+   <img src="https://i.imgur.com/QbeEcGm.png" alt="" class="nav__img">
+</a>
+               
+            </nav>
+        </header>
+
+    <div id="postsContainer"></div>
+
+    <!-- Popup -->
+    <div id="deletePopup" class="popup">
+        <div class="popup-content">
+
+        </div>
+    </div>
+
+    <!-- Share Popup -->
+    <div id="sharePopup" class="popup">
+        <div class="popup-content">
+            <p>رابط المشاركة:</p>
+            <div class="share-link">
+                <input type="text" id="shareLink" readonly>
+                <button onclick="copyLink()">نسخ</button>
+            </div>
+            <button onclick="closeSharePopup()">إغلاق</button>
+        </div>
+    </div>
+    <div class="image-container">
+      <button class="open-button" onclick="openWebsite()">فتح</button>
+    </div>
+    <hr>
+    <script>
+let posts = JSON.parse(localStorage.getItem('posts')) || [];
+let profileImage = localStorage.getItem('messengerImage') || 'default-profile.png';
+let profileName = localStorage.getItem('messengerUsername') || 'User';
+let postToDeleteIndex = null;
+let postToShareLink = null;
+
+function timeAgo(timestamp) {
+    const now = new Date();
+    const postTime = new Date(timestamp);
+    const diff = Math.floor((now - postTime) / 1000); // in seconds
+    if (isNaN(diff)) {
+        return 'قبل 2 دقيقة';
+    }
+
+    if (diff < 60) return `${diff} ثواني قبل`;
+    if (diff < 3600) return `${Math.floor(diff / 60)} دقائق قبل`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)} ساعات قبل`;
+    return `${Math.floor(diff / 86400)} أيام قبل`;
+}
+
+function openDeletePopup(index) {
+    postToDeleteIndex = index;
+    document.getElementById('deletePopup').style.display = 'flex';
+}
+
+function closeDeletePopup() {
+    postToDeleteIndex = null;
+    document.getElementById('deletePopup').style.display = 'none';
+}
+
+function deletePost() {
+    if (postToDeleteIndex !== null) {
+        posts.splice(postToDeleteIndex, 1);
+        localStorage.setItem('posts', JSON.stringify(posts));
+        loadPosts();
+        closeDeletePopup();
+    }
+}
+
+function openSharePopup(index) {
+    postToShareLink = index;
+    const baseUrl = `${window.location.protocol}//${window.location.host}`;
+    const link = `${baseUrl}/post.html?post=${posts[index].id}`;
+    document.getElementById('shareLink').value = link;
+    document.getElementById('sharePopup').style.display = 'flex';
+}
+
+function closeSharePopup() {
+    postToShareLink = null;
+    document.getElementById('sharePopup').style.display = 'none';
+}
+
+function copyLink() {
+    const linkInput = document.getElementById('shareLink');
+    linkInput.select();
+    linkInput.setSelectionRange(0, 99999); // For mobile devices
+    document.execCommand('copy');
+    alert('تم نسخ الرابط');
+}
+
+function toggleDropdown(index) {
+    const dropdown = document.getElementById(`dropdown-${index}`);
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+}
+
+function loadPosts() {
+    const postsContainer = document.getElementById('postsContainer');
+    postsContainer.innerHTML = '';
+
+    posts.forEach((post, index) => {
+        // Assign a unique ID to each post if it doesn't have one
+        if (!post.id) {
+            post.id = `post-${index}-${Date.now()}`;
+            localStorage.setItem('posts', JSON.stringify(posts));
+        }
+
+        const postElement = document.createElement('div');
+        postElement.className = 'post-container';
+
+        let postMedia = '';
+        if (post.image) {
+            postMedia = `<img src="${post.image}" >`;
+        } else if (post.video) {
+            postMedia = `<video controls>
+                            <source src="${post.video}" type="video/mp4">
+                         </video>`;
+        }
+
+        postElement.innerHTML = `
+        
+        
+
+        
+            <div class="profile-info">
+                <div style="display: flex; align-items: center;">
+                    <div class="profile-img" style="background-image: url('${profileImage}');"></div>
+                    <a href="profile.html"> <span class="name">${profileName}</span> </a>
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <span class="timestamp">${timeAgo(post.timestamp)}</span>
+                    <span class="more-options" onclick="toggleDropdown(${index})">⋮</span>
+                    <div id="dropdown-${index}" class="dropdown">
+                    
+                        <span onclick="openSharePopup(${index})">مشاركة</span>
+                    </div>
+                </div>
+            </div>
+            <div class="post-content">
+                <p>${post.content}</p>
+                ${postMedia}
+            </div>
+            
+            <button><img width="24" height="24" src="https://img.icons8.com/ios-filled/20/000000/speech-bubble--v1.png" alt="speech-bubble--v1"/></button>
+            <button><img width="24" height="24" src="https://img.icons8.com/android/24/000000/hearts.png" alt="hearts"/></button>
+                                
+   <button onclick="openSharePopup(${index})" ><img width="24" height="24" src="https://img.icons8.com/android/24/000000/forward-arrow.png" alt="forward-arrow"/></button>
+
+   
+   
+
+            
+        `;
+        
+        
+        //منسذ
+        
+        
+
+
+
+        postsContainer.appendChild(postElement);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', loadPosts);
+document.getElementById('cancelDelete').addEventListener('click', closeDeletePopup);
+document.getElementById('confirmDelete').addEventListener('click', deletePost);
+
+// Event listener for the share popup close button
+document.getElementById('sharePopup').addEventListener('click', function(event) {
+    if (event.target === document.getElementById('sharePopup')) {
+        closeSharePopup();
+    }
+});
+
+
+
+    </script>
+    <script>
+
+
+    </script>
+    
+
+    </script>
+        
+
+        <!--=============== MAIN JS ===============-->
+        <script>
+          /*=============== SCROLL SECTIONS ACTIVE LINK ===============*/
+          const sections = document.querySelectorAll('section[id]')
+          
+          function scrollActive() {
+            const scrollY = window.pageYOffset
+          
+            sections.forEach(current => {
+              const sectionHeight = current.offsetHeight,
+                sectionTop = current.offsetTop - 50,
+                sectionId = current.getAttribute('id')
+          
+              if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+                document.querySelector('.nav__menu a[href*=' + sectionId + ']').classList.add('active-link')
+              } else {
+                document.querySelector('.nav__menu a[href*=' + sectionId + ']').classList.remove('active-link')
+              }
+            })
+          }
+          window.addEventListener('scroll', scrollActive)
+          
+          
+          /*=============== CHANGE BACKGROUND HEADER ===============*/
+          function scrollHeader() {
+            const header = document.getElementById('header')
+            // When the scroll is greater than 80 viewport height, add the scroll-header class to the header tag
+            if (this.scrollY >= 80) header.classList.add('scroll-header');
+            else header.classList.remove('scroll-header')
+          }
+          window.addEventListener('scroll', scrollHeader)
+        </script>
+        
+        
+    </body>
+    <style>
+              body {
+            background-color: #FFFFFF;
+            color: #4E5050;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            
+        }
+        .post-container {
+            width: 99%;
+            max-width: 600px;
+            margin: 20px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .profile-info {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .profile-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #D9D9D9;
+            margin-right: 10px;
+            background-size: cover;
+            background-position: center;
+        }
+        .name {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .timestamp {
+            color: #888;
+            margin-right: 10px;
+        }
+        .post-content {
+            margin: 10px 0;
+        }
+        .post-content img, .post-content video {
+            width: 80%;
+            border-radius: 18px;
+        }
+        .actions {
+            display: flex;
+            align-items: center;
+        }
+        .actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            margin-right: 10px;
+        }
+        a {
+            text-decoration: none;
+            color: #2B2B2B;
+        }
+        .more-options {
+            cursor: pointer;
+            font-size: 1.2em;
+            margin-left: 10px;
+        }
+        .dropdown {
+            display: none;
+            position: absolute;
+            right: 10px;
+            top: 30px;
+            background: #FFFFFF;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            z-index: 10;
+        }
+        .dropdown button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            text-align: left;
+        }
+        .dropdown button:hover {
+            background: none;
+        }
+        /* Popup styles */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .popup-content {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .popup-content button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        .share-link {
+            margin-top: 10px;
+            padding: 15px;
+            border: none;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .share-link input {
+            border: none;
+            width: 100%;
+        }
+        .share-link button {
+            margin-left: 10px;
+        }
+        button .icont{
+          background-color: #FFFFFF;
+          border: none;
+          
+        }
+        
+          /* تنسيق للصورة والزر */
+
+    </style>
+</html>

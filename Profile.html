@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <link href="https://unpkg.com/boxicons@2.1.2/css/boxicons.min.css" rel="stylesheet">
+
+        <!--=============== BOXICONS ===============-->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+
+        <!--=============== CSS ===============-->
+        <link rel="stylesheet" href="assets/css/styles.css">
+
+        <title>Responsive bottom navigation</title>
+    </head>
+    <body>
+        <!--=============== HEADER ===============-->
+        <header class="header" id="header">
+            <nav class="nav container">
+                <a href="#" class="nav__logo">tweet</a>
+
+                <div class="nav__menu" id="nav-menu">
+                    <ul class="nav__list">
+                        <li class="nav__item">
+                            <a href="/responsive-bottom-navigation-main/home.html" class="nav__link active-link">
+                                <i class='bx bx-home-alt nav__icon'></i>
+                                <span class="nav__name">Home</span>
+                            </a>
+                        </li>
+                        
+                        <li class="nav__item">
+                            <a href="/responsive-bottom-navigation-main/Profile.html" class="nav__link">
+    <img width="24" height="24" src="https://img.icons8.com/android/24/1A1A1A/user.png" alt="user"/>
+
+                                <span class="nav__name">Profile</span>
+                            </a>
+                        </li>
+
+                        <li class="nav__item">
+                            <a href="/responsive-bottom-navigation-main/post.html" class="nav__link">
+<img width="24" height="24" src="https://img.icons8.com/android/24/1A1A1A/ball-point-pen.png" alt="ball-point-pen"/>
+                                <span class="nav__name">Post</span>
+                            </a>
+                        </li>
+
+                        <li class="nav__item">
+                            <a href="/responsive-bottom-navigation-main/Users.html" class="nav__link">
+ <img width="26" height="26" src="https://img.icons8.com/metro/26/1A1A1A/user-group-man-man.png" alt="user-group-man-man"/>
+                                <span class="nav__name">Users</span>
+                            </a>
+                        </li>
+
+                        <li class="nav__item">
+                            <a href="More.html" class="nav__link">
+  <img width="24" height="24" src="https://img.icons8.com/android/24/1A1A1A/menu.png" alt="menu"/>
+                                <span class="nav__name">More</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+<a href="Settings.html">
+   <img src="https://i.imgur.com/QbeEcGm.png" alt="" class="nav__img">
+</a>
+               
+            </nav>
+        </header>
+
+
+  <div class="profile-card">
+    <div class="image">
+            <div class="profile-img" id="messenger-profile-img"></div>
+    </div>
+
+    <div class="text-data">
+      <br />
+      
+            <span class="name" id="messenger-profile-name"></span>
+      <span class="job">YouTuber & Blogger</span>
+    </div>
+
+    <div class="buttons">
+      <button id="subscribeButton" class="button">Subscribe</button>
+      <button class="button">Message</button>
+    </div>
+
+    <div class="analytics">
+      <div class="data">
+        <span id="followerCount" class="number">0 Followers</span>
+      </div>
+      <div class="data">
+        <span class="number">0 continues</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.onload = function() {
+      // استرجاع بيانات المستخدم من localStorage
+      const username = localStorage.getItem('username');
+      const image = localStorage.getItem('image');
+
+      if (username && image) {
+        document.getElementById('profile-name').innerText = username;
+        document.getElementById('profile-img').style.backgroundImage = image;
+      } else {
+        alert('No profile data found. Please log in first.');
+        window.location.href = 'index.html';
+      }
+
+      // استرجاع عدد المتابعين المخزن في localStorage
+      const storedCount = localStorage.getItem('followerCount');
+      if (storedCount !== null) {
+        document.getElementById('followerCount').innerText = storedCount + ' Followers';
+      }
+
+      // إضافة مستمع الحدث لزر Subscribe
+      document.getElementById('subscribeButton').addEventListener('click', function() {
+        const followerCountElement = document.getElementById('followerCount');
+        let currentCount = parseInt(followerCountElement.innerText.split(' ')[0]);
+
+        if (this.classList.contains('subscribed')) {
+          currentCount--;
+          this.classList.remove('subscribed');
+        } else {
+          currentCount++;
+          this.classList.add('subscribed');
+        }
+
+        followerCountElement.innerText = currentCount + ' Followers';
+        localStorage.setItem('followerCount', currentCount);
+      });
+    };
+  </script>
+
+
+        
+
+        <!--=============== MAIN JS ===============-->
+        <script>
+          /*=============== SCROLL SECTIONS ACTIVE LINK ===============*/
+          const sections = document.querySelectorAll('section[id]')
+          
+          function scrollActive() {
+            const scrollY = window.pageYOffset
+          
+            sections.forEach(current => {
+              const sectionHeight = current.offsetHeight,
+                sectionTop = current.offsetTop - 50,
+                sectionId = current.getAttribute('id')
+          
+              if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+                document.querySelector('.nav__menu a[href*=' + sectionId + ']').classList.add('active-link')
+              } else {
+                document.querySelector('.nav__menu a[href*=' + sectionId + ']').classList.remove('active-link')
+              }
+            })
+          }
+          window.addEventListener('scroll', scrollActive)
+          
+          
+          /*=============== CHANGE BACKGROUND HEADER ===============*/
+          function scrollHeader() {
+            const header = document.getElementById('header')
+            // When the scroll is greater than 80 viewport height, add the scroll-header class to the header tag
+            if (this.scrollY >= 80) header.classList.add('scroll-header');
+            else header.classList.remove('scroll-header')
+          }
+          window.addEventListener('scroll', scrollHeader)
+        </script>
+        
+        
+    </body>
+</html>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const imagePreviewImg = document.getElementById('imagePreviewImg');
+        const chooseImageBtn = document.getElementById('chooseImageBtn');
+        const removeImageBtn = document.getElementById('removeImageBtn');
+        const postBtn = document.getElementById('postBtn');
+        const postContent = document.getElementById('postContent');
+
+        chooseImageBtn.addEventListener('click', () => {
+            imageInput.click();
+        });
+
+        imageInput.addEventListener('change', () => {
+            const file = imageInput.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    imagePreviewImg.src = reader.result;
+                    imagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        removeImageBtn.addEventListener('click', () => {
+            imagePreview.style.display = 'none';
+            imagePreviewImg.src = '';
+            imageInput.value = '';
+        });
+
+        postBtn.addEventListener('click', () => {
+            const content = postContent.value;
+            const imageSrc = imagePreviewImg.src;
+
+            if (content.trim() === '' && imageSrc === '') {
+                alert('Please enter some content or choose an image.');
+                return;
+            }
+
+            const post = {
+                content: content,
+                image: imageSrc,
+                timestamp: new Date().toLocaleString(),
+                likes: 0
+            };
+
+            let posts = JSON.parse(localStorage.getItem('posts')) || [];
+            posts.push(post);
+            localStorage.setItem('posts', JSON.stringify(posts));
+
+            window.location.href = 'hom.html';
+        });
+
+        window.onload = function() {
+            // استرجاع بيانات المستخدم من localStorage
+            const username = localStorage.getItem('username');
+            const image = localStorage.getItem('image');
+
+            if (username && image) {
+                document.getElementById('messenger-profile-name').innerText = username;
+                document.getElementById('messenger-profile-img').style.backgroundImage = `url(${image})`;
+            } else {
+                alert('No profile data found. Please log in first.');
+                window.location.href = 'index.html';
+            }
+        };
+    </script>
+    
+    
+      <script>
+        window.onload = function() {
+          const username = localStorage.getItem('messengerUsername');
+          const image = localStorage.getItem('messengerImage');
+    
+          if (username && image) {
+            document.getElementById('messenger-profile-name').innerText = username;
+            document.getElementById('messenger-profile-img').style.backgroundImage = `url(${image})`;
+    
+            document.getElementById('messenger-profile-name').addEventListener('click', function() {
+              localStorage.setItem('selectedUser', username);
+              localStorage.setItem('selectedUserImage', image);
+              window.location.href = 'Messages.html';
+            });
+          } else {
+            alert('No user data found.');
+            window.location.href = 'Users.html';
+          }
+        };
+      </script>
